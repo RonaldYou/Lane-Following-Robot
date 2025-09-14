@@ -8,3 +8,25 @@ LaneDetector::LaneDetector() : Node("lane_detector"), hue_low_(20), hue_high_(30
     RCLCPP_INFO(this->get_logger(), "Lane Detector Node Initialized");
 }
 
+void LaneDetector::image_callback(const sensor_msgs::msg::Image::SharedPtr msg) {
+    cv_bridge::CvImagePtr cv_ptr;
+    try {
+        cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    } catch (cv_bridge::Exception& e) {
+        RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+        return;
+    }
+
+    cv::Mat processed_image = process_image(cv_ptr->image);
+    geometry_msgs::msg::Point lane_center = detect_lane_center(processed_image);
+
+    lane_center_pub_->publish(lane_center);
+
+    // Publish debug image
+    cv_bridge::CvImage debug_msg;
+    debug_msg.header = msg->header;
+    debug_msg.encoding = sensor_msgs::image_encodings::MONO8;
+    debug_msg.image = processed_image;
+    debug_image_pub_->publish(*debug_msg.toImageMsg());
+}
+
