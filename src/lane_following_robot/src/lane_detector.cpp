@@ -30,3 +30,17 @@ void LaneDetector::image_callback(const sensor_msgs::msg::Image::SharedPtr msg) 
     debug_image_pub_->publish(*debug_msg.toImageMsg());
 }
 
+cv::Mat LaneDetector::process_image(const cv::Mat& image){
+    cv::Mat hsv, mask, result;
+
+    cv::cvtColor(image, hsv cv::COLOR_BGR2HSV);
+
+    cv::Scalar lower(hue_low_, sat_low_, val_low_);
+    cv::Scalar upper(hue_high_, sat_high_, val_high_);
+    cv::inRange(hsv, lower, upper, mask);
+
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    cv::morphologyEx(mask, result, cv::MORPH_CLOSE, kernel);
+    cv::morphologyEx(result, result, cv::MORPH_OPEN, kernel);
+    return result;
+}
