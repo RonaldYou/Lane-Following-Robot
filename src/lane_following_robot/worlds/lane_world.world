@@ -3,8 +3,8 @@
   <world name="lane_world">
     
     <!-- Physics settings -->
-    <physics name="default_physics" default="0" type="ode">
-      <gravity>0 0 -9.8066</gravity>
+    <physics name="default_physics" default="true" type="ode">
+      <gravity>0 0 -9.8</gravity>
       <ode>
         <solver>
           <type>quick</type>
@@ -25,27 +25,21 @@
 
     <!-- Scene settings -->
     <scene>
-      <ambient>0.4 0.4 0.4 1</ambient>
-      <background>0.7 0.7 0.7 1</background>
+      <ambient>0.5 0.5 0.5 1</ambient>
+      <background>0.7 0.8 1.0 1</background>
       <shadows>true</shadows>
     </scene>
 
-    <!-- Replace model://sun with direct light definition -->
+    <!-- Sun light -->
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.2 0.2 0.2 1</specular>
-      <attenuation>
-        <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
-      </attenuation>
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <!-- Replace model://ground_plane with direct ground definition -->
+    <!-- Ground plane -->
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
@@ -65,99 +59,168 @@
             </plane>
           </geometry>
           <material>
-            <ambient>0.8 0.8 0.8 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <ambient>0.2 0.7 0.2 1</ambient>
+            <diffuse>0.2 0.7 0.2 1</diffuse>
+            <specular>0.01 0.01 0.01 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Straight road -->
+    <model name="road">
+      <static>true</static>
+      <link name="road_link">
+        <visual name="road_visual">
+          <pose>0 0 0.01 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>20 2 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.4 0.4 0.4 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+        <collision name="road_collision">
+          <pose>0 0 0.01 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>20 2 0.02</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+    <!-- Left lane boundary (white) -->
+    <model name="left_lane_boundary">
+      <static>true</static>
+      <link name="boundary_link">
+        <visual name="boundary_visual">
+          <pose>0 0.9 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>20 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
             <specular>0.8 0.8 0.8 1</specular>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Lane track -->
-    <model name="lane_track">
+    <!-- Right lane boundary (white) -->
+    <model name="right_lane_boundary">
       <static>true</static>
-      <link name="track_link">
-        <visual name="track_visual">
-          <pose>0 0 0.01 0 0 0</pose>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>10 2</size>
-            </plane>
-          </geometry>
-          <material>
-            <ambient>0.5 0.5 0.5 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
-            <specular>0.01 0.01 0.01 1</specular>
-          </material>
-        </visual>
-        <collision name="track_collision">
-          <pose>0 0 0.01 0 0 0</pose>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>10 2</size>
-            </plane>
-          </geometry>
-        </collision>
-      </link>
-    </model>
-
-    <!-- Lane markings (white lines) -->
-    <model name="center_line">
-      <static>true</static>
-      <link name="center_line_link">
-        <visual name="center_line_visual">
-          <pose>0 0 0.015 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>10 0.1 0.01</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>1 1 1 1</ambient>
-            <diffuse>1 1 1 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Left lane boundary -->
-    <model name="left_boundary">
-      <static>true</static>
-      <link name="left_boundary_link">
-        <visual name="left_boundary_visual">
-          <pose>0 0.9 0.015 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>10 0.1 0.01</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>1 1 1 1</ambient>
-            <diffuse>1 1 1 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Right lane boundary -->
-    <model name="right_boundary">
-      <static>true</static>
-      <link name="right_boundary_link">
-        <visual name="right_boundary_visual">
+      <link name="boundary_link">
+        <visual name="boundary_visual">
           <pose>0 -0.9 0.015 0 0 0</pose>
           <geometry>
             <box>
-              <size>10 0.1 0.01</size>
+              <size>20 0.1 0.01</size>
             </box>
           </geometry>
           <material>
             <ambient>1 1 1 1</ambient>
             <diffuse>1 1 1 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Center line (yellow dashed) -->
+    <model name="center_line">
+      <static>true</static>
+      <link name="center_link">
+        <!-- Dashed center line segments -->
+        <visual name="dash_1">
+          <pose>-8 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
+          </material>
+        </visual>
+        
+        <visual name="dash_2">
+          <pose>-5 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
+          </material>
+        </visual>
+
+        <visual name="dash_3">
+          <pose>-2 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
+          </material>
+        </visual>
+
+        <visual name="dash_4">
+          <pose>1 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
+          </material>
+        </visual>
+
+        <visual name="dash_5">
+          <pose>4 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
+          </material>
+        </visual>
+
+        <visual name="dash_6">
+          <pose>7 0 0.015 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.1 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>0.8 0.8 0.2 1</specular>
           </material>
         </visual>
       </link>
