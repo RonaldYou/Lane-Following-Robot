@@ -1,12 +1,36 @@
 import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
+from launch.actions import ExecuteProcess, OpaqueFunction
 from launch_ros.actions import Node
 import xacro
+import tempfile
+
+def spawn_robot(context, *args, **kwargs):
+    xacro_file = '/mnt/macshare/Lane-Following-Robot/src/lane_following_robot/urdf/lane_robot.urdf.xacro'
+    
+    # Process robot description
+    robot_description_config = xacro.process_file(xacro_file)
+    robot_urdf = robot_description_config.toxml()
+    
+    # Write to temporary file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.urdf', delete=False) as f:
+        f.write(robot_urdf)
+        temp_urdf_file = f.name
+    
+    return [
+        ExecuteProcess(
+            cmd=[
+                'ign', 'service', '-s', '/world/lane_world/create',
+                '--reqtype', 'ignition.msgs.EntityFactory',
+                '--reptype', 'ignition.msgs.Boolean',
+                '--timeout', '5000',
+                '--req', f'sdf_filename: "{temp_urdf_file}" name: "lane_robot" pose: {{position: {{x: 0, y: 0, z: 0.2}}}}'
+            ],
+            output='screen'
+        )
+    ]
 
 def generate_launch_description():
-    # Package paths
     world_file = '/mnt/macshare/Lane-Following-Robot/src/lane_following_robot/worlds/lane_world.world'
     xacro_file = '/mnt/macshare/Lane-Following-Robot/src/lane_following_robot/urdf/lane_robot.urdf.xacro'
     
@@ -15,16 +39,9 @@ def generate_launch_description():
     robot_description = {'robot_description': robot_description_config.toxml()}
     
     return LaunchDescription([
-        # Start Gazebo server
+        # Start Ignition Gazebo
         ExecuteProcess(
-            cmd=['gzserver', '--verbose', '-s', 'libgazebo_ros_init.so', 
-                 '-s', 'libgazebo_ros_factory.so', world_file],
-            output='screen'
-        ),
-        
-        # Start Gazebo client
-        ExecuteProcess(
-            cmd=['gzclient'],
+            cmd=['ign', 'gazebo', '-v', '4', world_file],
             output='screen'
         ),
         
@@ -37,14 +54,12 @@ def generate_launch_description():
             parameters=[robot_description]
         ),
         
-        # Spawn robot in Gazebo
-        Node(
-            package='gazebo_ros',
-            executable='spawn_entity.py',
-            name='spawn_entity',
-            output='screen',
-            arguments=['-entity', 'lane_robot',
-                      '-topic', '/robot_description',
-                      '-x', '0', '-y', '0', '-z', '0.1']
+        # Delay spawning to let Gazebo start
+        ExecuteProcess(
+            cmd=['sleep', '3'],
+            output='screen'
         ),
+        
+        # Spawn robot using file approach
+        OpaqueFunction(function=spawn_robot),
     ])
