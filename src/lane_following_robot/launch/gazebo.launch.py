@@ -24,7 +24,7 @@ def spawn_robot(context, *args, **kwargs):
                 '--reqtype', 'ignition.msgs.EntityFactory',
                 '--reptype', 'ignition.msgs.Boolean',
                 '--timeout', '5000',
-                '--req', f'sdf_filename: "{temp_urdf_file}" name: "lane_robot" pose: {{position: {{x: 0, y: 0, z: 0.0}}}}'
+                '--req', f'sdf_filename: "{temp_urdf_file}" name: "lane_robot" pose: {{position: {{x: -9.0, y: 0.5, z: 0.0}} orientation: {{x: 0, y: 0, z: 0, w: 1}}}}'
             ],
             output='screen'
         )
